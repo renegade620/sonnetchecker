@@ -37,6 +37,12 @@ A recorded asciinema cast is included in the repository at `demo.cast`. To previ
 asciinema play demo.cast
 ```
 
+Live player embed
+
+<iframe src="https://asciinema.org/a/Gr8UpHi6XEW5w8g6/embed" style="width: 100%; height: 320px; border: 0;"></iframe>
+
+If the embed doesn't render on GitHub you can view the cast at https://asciinema.org/a/Gr8UpHi6XEW5w8g6 or convert the cast to an SVG/GIF for inline embedding (instructions below).
+
 To convert the cast to an SVG or GIF for embedding in the README you can use `svg-term` and an image converter:
 
 ```bash
