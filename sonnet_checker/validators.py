@@ -1,3 +1,5 @@
+from sonnet_checker.meter import check_meter
+from sonnet_checker.rhyme import check_rhyme_scheme
 from sonnet_checker.sonnet_types import SONNET_TYPES
 from sonnet_checker.structure import check_line_count
 
@@ -16,7 +18,13 @@ def validate_sonnet(lines, sonnet_type):
 
     line_result = check_line_count(lines, rules["line_count"])
 
-    return {
+    result = {
         "sonnet_type": sonnet_type,
         "structure": line_result,
     }
+
+    if line_result["passed"]:
+        result["rhyme"] = check_rhyme_scheme(lines, rules["rhyme_scheme"])
+        result["meter"] = check_meter(lines)
+
+    return result
