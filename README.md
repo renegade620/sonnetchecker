@@ -27,6 +27,33 @@ python app.py
 ```
 The CLI runs interactively: choose a sonnet form and paste your poem, then press Enter twice to finish. The tool prints a pass/fail report.
 
+## Demo (asciinema)
+
+A recorded asciinema cast is included in the repository at `demo.cast`. To preview the demonstration locally:
+
+```bash
+# install asciinema if you don't have it
+# https://asciinema.org/docs/installation
+asciinema play demo.cast
+```
+
+Live player embed
+
+<iframe src="https://asciinema.org/a/Gr8UpHi6XEW5w8g6/embed" style="width: 100%; height: 320px; border: 0;"></iframe>
+
+If the embed doesn't render on GitHub you can view the cast at https://asciinema.org/a/Gr8UpHi6XEW5w8g6 or convert the cast to an SVG/GIF for inline embedding (instructions below).
+
+To convert the cast to an SVG or GIF for embedding in the README you can use `svg-term` and an image converter:
+
+```bash
+# npm install -g svg-term-cli
+svg-term --in demo.cast --out demo.svg --window
+# convert svg to gif (ImageMagick / other tools)
+convert demo.svg demo.gif
+```
+
+If you prefer an online player you can upload `demo.cast` to https://asciinema.org and embed the player instead of a GIF.
+
 ## Programmatic usage
 
 ```python
@@ -85,6 +112,7 @@ tests/                    pytest suite for each module
 - Suggested Dev workflow:
   - pip install -e .
   - run pytest and add tests for any change.
+- If you’d like, I can add a CONTRIBUTING.md and issue templates in the PR.
 
 ## Roadmap (high level)
 
@@ -94,4 +122,4 @@ tests/                    pytest suite for each module
 - Web interface or a small web UI on top of the same package
 
 ## License
-This project is available under the MIT License.
+This project is available under the MIT License. (I can add a LICENSE file to the branch and PR.)
