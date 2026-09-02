@@ -5,9 +5,19 @@ of a sonnet: Shakespearean, Petrarchan, or Spenserian.
 
 ## Status
 
-Only line count is currently validated (a sonnet must have 14 lines). Rhyme
-scheme and meter are defined per form in `sonnet_checker/sonnet_types.py` but
-are not yet checked — see the roadmap below.
+Three checks run today, in order, once line count passes:
+
+- **Line count** — must match the form (14 lines for all three supported forms).
+- **Rhyme scheme** — end words are looked up in the CMU Pronouncing
+  Dictionary (via the `pronouncing` package) and grouped by rhyme; the
+  resulting pattern is compared to the form's expected scheme. A word
+  missing from the dictionary (e.g. "dimm'd") can't be matched and fails
+  the check rather than being guessed.
+- **Meter** — syllables per line are counted and compared to 10 (iambic
+  pentameter). This checks syllable *count* only, not stress pattern, so it
+  doesn't yet confirm the syllables actually fall unstressed/stressed.
+
+See the roadmap below for what's still missing.
 
 ## Install
 
@@ -35,6 +45,5 @@ python -m pytest
 
 ## Roadmap
 
-- [ ] Rhyme scheme validation against each form's expected pattern
-- [ ] Meter validation (iambic pentameter)
+- [ ] Stress-pattern (true iambic) meter checking, beyond syllable count
 - [ ] Web UI on top of the same `sonnet_checker` package
