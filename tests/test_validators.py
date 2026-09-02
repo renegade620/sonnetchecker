@@ -13,6 +13,8 @@ def test_validate_sonnet_returns_structure_for_known_types(sonnet_type):
 
     assert result["sonnet_type"] == sonnet_type
     assert result["structure"] == {"expected": 14, "actual": 14, "passed": True}
+    assert "rhyme" in result
+    assert "meter" in result
 
 
 def test_validate_sonnet_flags_wrong_line_count():
@@ -20,6 +22,8 @@ def test_validate_sonnet_flags_wrong_line_count():
 
     assert result["structure"]["passed"] is False
     assert result["structure"]["actual"] == 10
+    assert "rhyme" not in result
+    assert "meter" not in result
 
 
 def test_validate_sonnet_raises_for_unknown_type():
