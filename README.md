@@ -1,122 +1,50 @@
 # Sonnet Checker
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
 
-A command-line tool that checks whether a poem matches the structural rules
-of a sonnet — Shakespearean, Petrarchan, or Spenserian — checking line
-count, rhyme scheme, and meter.
+A small command-line tool and library that checks whether a poem matches the structural rules of a sonnet — Shakespearean, Petrarchan, or Spenserian — by verifying line count, rhyme scheme, and meter.
 
 ## What it checks
 
-| Check | What it verifies |
-| --- | --- |
-| **Line count** | The poem has exactly 14 lines. |
-| **Rhyme scheme** | Each line's end word is looked up in the CMU Pronouncing Dictionary (via the [`pronouncing`](https://pypi.org/project/pronouncing/) package) and grouped by rhyme sound; the resulting pattern is compared against the chosen form's expected scheme (e.g. `ABAB CDCD EFEF GG` for Shakespearean). |
-| **Meter** | Each line's syllables are counted and checked against 10 (iambic pentameter). A line passes if *any* of its words' valid dictionary pronunciations reach 10 — poets routinely rely on alternate readings (e.g. "ev'ry" vs. "every") to hit the meter, so the checker allows for that. |
+- Line count — the poem has exactly 14 lines.
+- Rhyme scheme — line-ending words are looked up in the CMU Pronouncing Dictionary (via the `pronouncing` package) and grouped by rhyme sound.
+- Meter — each line's syllables are counted and compared against 10 (iambic pentameter). Meter checking is a syllable-count verification only (it does not verify stress patterning).
 
-Rhyme and meter are only checked once line count passes.
-
-## Install
+## Quickstart (development)
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+# optional: install editable for development
+pip install -e .
 ```
 
-## Usage
+## Usage (CLI)
 
 ```bash
 python app.py
 ```
+The CLI runs interactively: choose a sonnet form and paste your poem, then press Enter twice to finish. The tool prints a pass/fail report.
 
-You'll be asked to pick a sonnet form, then paste your poem — press **Enter
-twice** when you're done. The tool prints a pass/fail report.
+## Programmatic usage
 
-## Example
+```python
+from sonnet_checker.parser import parse_poem
+from sonnet_checker.validators import validate_sonnet
 
-Checking Shakespeare's Sonnet 18 against the Shakespearean form:
-
-```
-$ python app.py
-Welcome to the Sonnet Checker!
-
-Please choose a sonnet type:
-1. Shakespearean
-2. Petrarchan
-3. Spenserian
-Enter your choice (1, 2, or 3): 1
-Paste your sonnet, then press Enter twice to finish:
-Shall I compare thee to a summer's day?
-Thou art more lovely and more temperate:
-Rough winds do shake the darling buds of May,
-And summer's lease hath all too short a date;
-Sometime too hot the eye of heaven shines,
-And often is his gold complexion dimm'd;
-And every fair from fair sometime declines,
-By chance, or nature's changing course, untrimm'd;
-But thy eternal summer shall not fade,
-Nor lose possession of that fair thou ow'st,
-Nor shall death brag thou wander'st in his shade,
-When in eternal lines to time thou grow'st:
-So long as men can breathe, or eyes can see,
-So long lives this, and this gives life to thee.
-
-
-Sonnet type: Shakespearean
-
-Line count [PASS]
-  14 / 14 lines
-
-Rhyme scheme [FAIL]
-  expected: A B A B C D C D E F E F G G
-  detected: A B A C D ? D ? E ? E ? F F
-  end words: day, temperate, May, date, shines, dimm'd, declines, untrimm'd, fade, ow'st, shade, grow'st, see, thee
-
-Meter [PASS] (10 syllables/line, iambic pentameter)
-  line  1: 10 syllables
-  line  2: 9 syllables
-  line  3: 10 syllables
-  line  4: 10 syllables
-  line  5: 10 syllables
-  line  6: 10 syllables
-  line  7: 10 syllables
-  line  8: 10 syllables
-  line  9: 10 syllables
-  line 10: 10 syllables
-  line 11: 10 syllables
-  line 12: 10 syllables
-  line 13: 10 syllables
-  line 14: 10 syllables
-
-Overall: FAIL
+text = open("my_sonnet.txt").read()
+lines = parse_poem(text)
+result = validate_sonnet(lines, "shakespearean")
+print(result)  # dictionary with structure, rhyme, and meter results
 ```
 
-Line count and meter pass, but rhyme scheme fails — which is worth reading
-closely, because it shows the two ways rhyme checking can come up short:
+## Short example
+- Line count and meter pass, rhyme scheme can fail due to:
+  - Pronunciation strictness (modern pronunciation vs historical eye-rhyme).
+  - Unknown end words (archaic elisions not present in CMUdict).
 
-**Pronunciation strictness.** Position 2 (`temperate`, expected to rhyme
-with position 4, `date`) is assigned a different letter (`B` vs. `C`)
-because the two words genuinely don't share an ending sound in modern
-pronunciation:
-
-```
-temperate -> ends in "-er-ət" / "-r-ət"  (EH1 M P (ER0) AH0 T)
-date      -> ends in "-eɪt"              (EY1 T)
-```
-
-This isn't a bug — it's Sonnet 18's well-known **eye rhyme**: "temperate"
-and "date" look like they might rhyme and may have scanned closer in Early
-Modern English, but they don't rhyme by modern pronunciation, and the
-checker reports that accurately rather than forcing a match. Rhyme checking
-here is strict: it requires the full rhyming sound (from the last stressed
-vowel onward) to match exactly, so historical near-rhymes and eye rhymes
-will register as failures.
-
-**Elided spellings.** `dimm'd`, `untrimm'd`, `ow'st`, and `grow'st` all show
-up as `?` in the detected pattern. These archaic contracted forms simply
-aren't entries in the CMU Pronouncing Dictionary, so there's no
-pronunciation data to check them against — the checker reports "unknown"
-rather than guessing, and an unknown end word can never satisfy a rhyme
-match.
+See EXAMPLES.md for a full Sonnet 18 transcript and detailed example output.
 
 ## Running tests
 
@@ -138,23 +66,33 @@ sonnet_checker/
 tests/                    pytest suite for each module
 ```
 
+## How it works (concise)
+
+- Rhyme matching: requires the rhyme sound from the last stressed vowel onward (CMUdict). Exact match is required by default.
+- Unknown words: words missing from CMUdict are reported as "unknown" and cannot satisfy rhyme matches.
+- Meter: checks syllable counts per line; for words missing from CMUdict the checker falls back to a vowel-group heuristic — this is inherently approximate.
+- Rhyme and meter checks run only if line count passes.
+
 ## Known limitations
 
-- Rhyme matching requires the CMUdict rhyming sound to match exactly;
-  historical near-rhymes and eye rhymes (like "temperate"/"date" above)
-  will fail even when a poet intended them to rhyme.
-- A word missing from CMUdict — most commonly an archaic elided spelling —
-  can't be rhyme-checked at all and is reported as unknown.
-- Syllable counting falls back to a rough vowel-group estimate for words
-  missing from CMUdict, rather than a real pronunciation.
-- Meter checking verifies syllable count only; it does not verify that
-  stress actually falls unstressed/stressed (true iambic scansion).
+- Exact CMUdict rhyme matching will flag historical near-rhymes (eye rhymes) as failures.
+- Archaic/elided spellings (e.g., `dimm'd`) may not be in CMUdict.
+- Meter checking does not verify stress patterns (true scansion).
 
-## Roadmap
+## Contributing
 
-- Optional fuzzy rhyme matching (vowel-sound only, ignoring the coda) for
-  historical near-rhymes
-- Normalizing archaic elided spellings (`dimm'd` → `dimmed`, `ow'st` →
-  `owest`) before dictionary lookup
+- Fork the repo, create a branch, run tests, and open a pull request.
+- Suggested Dev workflow:
+  - pip install -e .
+  - run pytest and add tests for any change.
+- If you’d like, I can add a CONTRIBUTING.md and issue templates in the PR.
+
+## Roadmap (high level)
+
+- Optional fuzzy rhyme matching for historical near-rhymes
+- Normalizing archaic elided spellings before dictionary lookup
 - Stress-pattern-aware meter checking
-- A web interface on top of the same `sonnet_checker` package
+- Web interface or a small web UI on top of the same package
+
+## License
+This project is available under the MIT License. (I can add a LICENSE file to the branch and PR.)
