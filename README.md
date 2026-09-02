@@ -85,7 +85,6 @@ tests/                    pytest suite for each module
 - Suggested Dev workflow:
   - pip install -e .
   - run pytest and add tests for any change.
-- If you’d like, I can add a CONTRIBUTING.md and issue templates in the PR.
 
 ## Roadmap (high level)
 
@@ -95,4 +94,4 @@ tests/                    pytest suite for each module
 - Web interface or a small web UI on top of the same package
 
 ## License
-This project is available under the MIT License. (I can add a LICENSE file to the branch and PR.)
+This project is available under the MIT License.
