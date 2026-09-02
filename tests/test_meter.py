@@ -23,3 +23,14 @@ def test_check_meter_uses_fallback_for_unknown_words():
 
     assert result["actual"] == [2]
     assert result["passed"] is False
+
+
+def test_check_meter_accepts_lines_needing_an_alternate_pronunciation():
+    # "temperate" is 9 syllables under its primary CMUdict pronunciation but
+    # 10 under its alternate ("tem-per-ate" vs. "tem-p'rate") - the line is
+    # genuinely iambic pentameter and should pass.
+    line = "Thou art more lovely and more temperate:"
+
+    result = check_meter([line])
+
+    assert result["passed"] is True
